@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /cos/
+
+Sitemap: https://www.alutecglass.ro/sitemap.xml
