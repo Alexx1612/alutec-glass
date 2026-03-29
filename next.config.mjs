@@ -1,12 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
+
+  // Îi spunem unde stă folderul _next pe GitHub
   basePath: "/alutec-glass",
+  assetPrefix: "/alutec-glass/",
+
   trailingSlash: true,
   images: {
     unoptimized: true,
   },
-  // Această setare previne erorile de hidratare care pot apărea pe servere statice
   reactStrictMode: false,
   typescript: {
     ignoreBuildErrors: true,
