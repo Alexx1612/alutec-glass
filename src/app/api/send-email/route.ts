@@ -103,6 +103,7 @@ export async function POST(request: Request) {
             <tr><td style="width: 100px;"><strong>Nume:</strong></td><td>${name}</td></tr>
             <tr><td><strong>Telefon:</strong></td><td><a href="tel:${phone}" style="color: #2563eb; text-decoration: none; font-weight: bold;">${phone}</a></td></tr>
             <tr><td><strong>Email:</strong></td><td>${email || '<span style="color: #94a3b8;">Nespecificat</span>'}</td></tr>
+            <tr><td><strong>Adresă:</strong></td><td>${address || '<span style="color: #94a3b8;">Nespecificată</span>'}</td></tr>
           </table>
 
           <div style="background-color: #f1f5f9; padding: 15px; border-left: 4px solid #94a3b8; margin-bottom: 30px; border-radius: 0 6px 6px 0;">
