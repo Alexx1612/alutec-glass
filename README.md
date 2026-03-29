@@ -67,6 +67,5 @@ src/
 ├── lib/                 # Utilitare (calculator de preț, management coș)
 └── public/              # Fișiere statice (imagini, iconițe, ghid PDF)
 
-
 ---
 *Construit cu pasiune pentru a simplifica procesul de ofertare și achiziție a sistemelor premium din sticlă.*

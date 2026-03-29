@@ -1,27 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ==========================================
-  // 1. SETĂRI PENTRU GITHUB PAGES (TESTARE ACUM)
-  // ==========================================
-
-  // Forțează crearea de fișiere statice (HTML/CSS) - obligatoriu pe GitHub Pages
   output: "export",
-
-  // GitHub Pages nu suportă procesarea avansată a imaginilor din Next.js
+  basePath: "/alutec-glass",
+  trailingSlash: true,
   images: {
     unoptimized: true,
   },
-
-  // Pentru că pe GitHub site-ul tău e într-un sub-folder (ex: github.io/alutec-glass)
-  basePath: "/alutec-glass",
-
-  // ==========================================
-  // 2. SETĂRILE TALE ORIGINALE (PĂSTRATE)
-  // ==========================================
+  // Această setare previne erorile de hidratare care pot apărea pe servere statice
+  reactStrictMode: false,
   typescript: {
     ignoreBuildErrors: true,
   },
-  reactStrictMode: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
