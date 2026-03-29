@@ -1,0 +1,12 @@
+COS 
+- doar "Prețul include TVA" 
+- Date de Contact sa contina Adresa Livrarii
+
+
+Contact 
+- si whatsapp
+
+Calcul
+- marimi sa se vada 
+- limita la marimi sticla( 2.66m^2) 
+- calcul pe arie la sticla(nu perimetru)
