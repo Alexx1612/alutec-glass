@@ -6,15 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowRight, Calculator, ShieldCheck, Maximize, MapPin, Wrench, Download, Users, Star, CheckCircle2 } from 'lucide-react';
 
+// SETARE IMPORTANTĂ: Calea dinamică doar pentru imagini și fișiere statice (PDF)
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/alutec-glass';
+
 export default function HomePage() {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const handleDownloadGhid = (e: React.FormEvent) => {
     e.preventDefault();
-    // Afișăm mesajul de succes în locul formularului
     setDownloadSuccess(true);
-    // Deschidem automat PDF-ul din folderul /public într-un tab nou
-    window.open('/ghid-terase.pdf', '_blank');
+    // Pentru window.open (care e o funcție de browser pură) avem nevoie de basePath
+    window.open(`${basePath}/ghid-terase.pdf`, '_blank');
   };
 
   return (
@@ -22,9 +24,15 @@ export default function HomePage() {
 
       {/* 1. HERO SECTION - Prima impresie */}
       <section className="relative bg-blue-950 text-white overflow-hidden">
-        {/* Imaginea de fundal - actualizată să fie citită din /images */}
-        <div className="absolute inset-0 bg-[url('/images/hero-bg.webp')] bg-cover bg-center opacity-50"></div>
-        {/* Gradient care e mai închis sus și jos, și mai transparent în mijloc */}
+
+        {/* Imaginea de fundal - folosim eticheta standard cu basePath */}
+        <img
+          src={`${basePath}/images/hero-bg.webp`}
+          alt="Fundal Alutec Glass"
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+        />
+
+        {/* Gradientul */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-950/90 via-blue-900/60 to-blue-950/90"></div>
 
         <div className="container relative z-10 mx-auto px-4 py-24 md:py-32 flex flex-col items-center text-center">
@@ -39,6 +47,7 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
+            {/* Pentru <Link> Next.js adaugă automat basePath-ul din config, deci folosim doar "/calcul" */}
             <Button asChild size="lg" className="bg-orange-600 hover:bg-orange-500 text-white text-lg h-14 px-8 rounded-xl shadow-[0_0_20px_-5px_rgba(234,88,12,0.6)]">
               <Link href="/calcul">
                 <Calculator className="mr-2 h-5 w-5" />
@@ -125,7 +134,7 @@ export default function HomePage() {
                 Nu suntem doar montatori. Construim spații în care să te simți acasă.
               </h2>
               <p className="text-slate-300 text-lg leading-relaxed">
-                Știm că decizia de a investi într-o terasă de sticlă nu este ușoară. Spre deosebire de alte firme care doar îți trimit o ofertă rece, noi venim cu consultanță reală pe teren. Rezolvăm pereții strâmbi, gândim pantele de scurgere a apei și ne asigurăm că sistemul culisează cu un singur deget.
+                Știm că decizia de a investi într-o terasă de sticlă nu este ușoară. Spre deosebire de alte firme care doar îți trimit o ofertă rece, noi venim cu consultanță reală pe teren. Rezolvăm pereții strâmbi, gândim pantele de scurgere a apei și ne asigurăm că sistemul culisează cu un single deget.
               </p>
               <div className="flex flex-wrap gap-6 pt-4">
                 <div className="flex items-center gap-3">
@@ -138,10 +147,10 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            {/* AM ÎNLOCUIT BACKGROUND-UL CU UN IMG TAG REAL PENTRU SIGURANȚĂ 100% */}
+            {/* Imaginea Echipei - Standard img cu basePath */}
             <div className="flex-1 w-full h-80 bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden relative shadow-2xl">
               <img
-                src="/images/echipa-montaj-teresa.webp"
+                src={`${basePath}/images/echipa-montaj-terasa.webp`}
                 alt="Echipa Alutec Glass la montaj"
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -177,7 +186,7 @@ export default function HomePage() {
             <div className="bg-emerald-500/20 border border-emerald-400/50 p-6 rounded-xl max-w-2xl mx-auto animate-in fade-in zoom-in duration-300">
               <CheckCircle2 className="w-12 h-12 text-emerald-300 mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-white mb-2">Ghidul se deschide acum!</h3>
-              <p className="text-emerald-100">Dacă nu s-a deschis automat într-un tab nou, <a href="/ghid-terase.pdf" target="_blank" className="underline font-bold text-white">apasă aici pentru a-l descărca manual</a>.</p>
+              <p className="text-emerald-100">Dacă nu s-a deschis automat într-un tab nou, <a href={`${basePath}/ghid-terase.pdf`} target="_blank" rel="noreferrer" className="underline font-bold text-white">apasă aici pentru a-l descărca manual</a>.</p>
             </div>
           )}
         </div>

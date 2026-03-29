@@ -5,21 +5,24 @@ import Link from 'next/link';
 import { X, Calculator } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Calea dinamică: citește din variabila de mediu, iar dacă nu există (ex: pe Vercel), lasă calea goală
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/alutec-glass';
+
 const CATEGORIES = [
   {
     title: "Sistem Glisant",
     description: "Panouri individuale care culisează și se parchează lateral pentru deschidere 100%.",
-    image: "/images/sistem-glisant-terasa.webp" // Poza unde se strâng pachet
+    image: `${basePath}/images/sistem-glisant-terasa.webp`
   },
   {
     title: "Sistem Culisant",
     description: "Panouri pe șine multiple care se trag unul după celălalt, ideal pentru spații înguste.",
-    image: "/images/sistem-culisant-terasa.webp" // Poza panoramica cu sine
+    image: `${basePath}/images/sistem-culisant-terasa.webp`
   },
   {
     title: "Sticlă Fixă / Balustrade",
     description: "Panouri de sticlă securizată pentru balustrade și închideri perimetrale permanente.",
-    image: "/images/sistem-fix-terasa.webp" // Poza cu geamul curat, fix
+    image: `${basePath}/images/sistem-fix-terasa.webp`
   }
 ];
 
@@ -47,11 +50,11 @@ export default function ProdusePage() {
                 className="relative aspect-[4/3] cursor-zoom-in bg-slate-100 group overflow-hidden"
                 onClick={() => setZoomedImg(category.image)}
               >
-                {/* Aici incarcam pozele tale */}
+                {/* Folosim eticheta standard de img care nu se blochează pe GitHub Pages */}
                 <img
                   src={category.image}
                   alt={category.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-blue-900/0 group-hover:bg-blue-900/20 transition-colors duration-300" />
               </div>
@@ -68,7 +71,7 @@ export default function ProdusePage() {
         </div>
 
         <div className="flex justify-center pt-10 border-t border-blue-100">
-          <Link href="/calcul">
+          <Link href={`/calcul`}>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white h-16 md:h-20 px-12 text-xl md:text-2xl font-bold shadow-xl rounded-2xl transition-all">
               <Calculator className="mr-3 h-7 w-7 md:h-8 md:w-8" />
               Mergi la Calculator Preț
@@ -83,11 +86,15 @@ export default function ProdusePage() {
           onClick={() => setZoomedImg(null)}
         >
           <div className="relative w-full max-w-[90vw] max-h-[95vh] flex flex-col items-center">
-            <button className="absolute -top-16 right-0 text-white/70 hover:text-white transition-colors">
+            <button className="absolute -top-16 right-0 text-white/70 hover:text-white transition-colors z-10">
               <X className="w-12 h-12" />
             </button>
-            <div className="w-full bg-transparent rounded-2xl overflow-hidden flex items-center justify-center">
-               <img src={zoomedImg} alt="Mărit" className="max-w-full max-h-[90vh] object-contain shadow-2xl rounded-xl" />
+            <div className="relative w-[90vw] h-[85vh] bg-transparent rounded-2xl overflow-hidden flex items-center justify-center">
+               <img
+                 src={zoomedImg}
+                 alt="Mărit"
+                 className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl rounded-xl"
+               />
             </div>
           </div>
         </div>

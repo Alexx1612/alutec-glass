@@ -10,6 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Trash2, ShoppingBag, Mail, Send, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { cartManager, CartItem } from '@/lib/cart';
 
+// Calea dinamică
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/alutec-glass';
+
 // --- FUNCȚII PENTRU CULORI SCHIȚĂ ---
 const getProfileColorHex = (color: string) => {
   const lower = (color || '').toLowerCase();
@@ -40,7 +43,6 @@ export default function CosPage() {
   });
   const [isSending, setIsSending] = useState(false);
 
-  // Starea pentru Pop-Up-ul personalizat
   const [popup, setPopup] = useState<{show: boolean, message: string, type: 'success' | 'error'}>({
     show: false, message: '', type: 'success'
   });
@@ -53,20 +55,29 @@ export default function CosPage() {
   };
 
   useEffect(() => {
-    const updateCartItems = () => setCartItems(cartManager.getItems());
-    updateCartItems();
-    window.addEventListener('cart-updated', updateCartItems);
-    return () => window.removeEventListener('cart-updated', updateCartItems);
+    // Încărcăm coșul doar la deschiderea paginii
+    setCartItems(cartManager.getItems());
+    // Am șters "window.addEventListener" de aici ca să oprim confuzia de refresh dublu.
   }, []);
 
-  const removeItem = (id: string) => {
-    cartManager.removeItem(id);
-    setCartItems(cartManager.getItems());
+  const removeItem = (id: string | number) => {
+    // 1. Ștergem fizic din memoria browserului
+    cartManager.removeItem(String(id));
+
+    // 2. Extragem lista rămasă și o clonăm profund.
+    // Această clonare (JSON.parse(JSON.stringify)) forțează React să vadă o listă complet nouă
+    // și să șteargă vizual instantaneu produsul de pe ecran!
+    const remainingItems = cartManager.getItems();
+    setCartItems(JSON.parse(JSON.stringify(remainingItems)));
+
+    // 3. Trimitem semnalul DOAR pentru ca meniul de sus să își scadă bulina roșie
+    window.dispatchEvent(new Event('cart-updated'));
   };
 
   const clearCart = () => {
     cartManager.clearCart();
     setCartItems([]);
+    window.dispatchEvent(new Event('cart-updated'));
   };
 
   const getTotal = () => cartItems.reduce((total, item) => total + item.price, 0);
@@ -91,7 +102,7 @@ export default function CosPage() {
     setIsSending(true);
 
     try {
-      const response = await fetch('/api/send-email', {
+      const response = await fetch(`${basePath}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -120,14 +131,11 @@ export default function CosPage() {
     }
   };
 
-  // --- FUNCȚIE GENERARE SCHIȚĂ VIZUALĂ ÎN COȘ ---
   const renderCartDiagram = (item: CartItem) => {
-    // Lasăm padding pentru a avea loc textele exterioare (sus și stânga)
     const paddingX = 25;
     const paddingY = 20;
     const aspectRatio = item.width / item.height;
 
-    // Dimensiuni mai mari de bază pentru claritate
     let boxW = 150;
     let boxH = 150 / aspectRatio;
 
@@ -141,35 +149,24 @@ export default function CosPage() {
     const profileColorHex = getProfileColorHex(item.profileColor);
     const glassColorHex = getGlassColorHex(item.glassType);
 
-    // Text alb pe sticlă neagră, albastru pe sticlă deschisă
     const isDarkGlass = (item.glassType || '').toLowerCase().includes('neagr');
     const innerTextColor = isDarkGlass ? '#f8fafc' : '#2563eb';
     const outerTextColor = '#475569';
 
-    // Dacă avem prea multe secțiuni, micșorăm fontul din interior ca să încapă textul
     const innerFontSize = Math.min(6.5, sectionW / 3.5);
 
     return (
       <svg viewBox={`0 0 ${svgWidth + paddingX * 2} ${svgHeight + paddingY * 2}`} className="w-full h-full max-h-[180px] drop-shadow-md overflow-visible">
-        {/* Geamul */}
         <rect x={paddingX} y={paddingY} width={boxW} height={boxH} fill={glassColorHex} stroke={profileColorHex} strokeWidth="3" rx="1" />
-
-        {/* Liniile separatoare */}
         {Array.from({ length: item.sections - 1 }).map((_, i) => (
           <line key={i} x1={paddingX + sectionW * (i + 1)} y1={paddingY} x2={paddingX + sectionW * (i + 1)} y2={paddingY + boxH} stroke={profileColorHex} strokeWidth="2" />
         ))}
-
-        {/* Lățimea Totală - Sus */}
         <text x={paddingX + (boxW / 2)} y={paddingY - 6} textAnchor="middle" fontSize="8" fill={outerTextColor} fontWeight="bold">
           {item.width} cm
         </text>
-
-        {/* Înălțimea - Stânga */}
         <text x={paddingX - 8} y={paddingY + (boxH / 2)} textAnchor="middle" transform={`rotate(-90 ${paddingX - 8} ${paddingY + (boxH / 2)})`} fontSize="8" fill={outerTextColor} fontWeight="bold">
           {item.height} cm
         </text>
-
-        {/* Dimensiunea per panou - Interior */}
         {Array.from({ length: item.sections }).map((_, i) => (
           <text key={`sec-${i}`} x={paddingX + (sectionW * i) + (sectionW / 2)} y={paddingY + (boxH / 2) + (innerFontSize/2.5)} textAnchor="middle" fontSize={innerFontSize} fill={innerTextColor} fontWeight="bold">
             {(item.width / item.sections).toFixed(1)}
@@ -182,7 +179,6 @@ export default function CosPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 relative">
 
-      {/* POP-UP PERSONALIZAT (Apare sus pe mijloc) */}
       {popup.show && (
         <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-lg shadow-xl text-white font-medium flex items-center gap-3 transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${popup.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
           {popup.type === 'success' ? <CheckCircle2 className="w-6 h-6" /> : <AlertCircle className="w-6 h-6" />}
@@ -198,7 +194,7 @@ export default function CosPage() {
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Coșul este gol</h1>
           <p className="text-slate-600 mb-6">Nu ați adăugat încă nicio configurare în coș</p>
           <Button asChild size="lg">
-            <a href="/produse">Vizualizați Produse <ArrowRight className="ml-2 h-4 w-4" /></a>
+            <a href={`${basePath}/produse`}>Vizualizați Produse <ArrowRight className="ml-2 h-4 w-4" /></a>
           </Button>
         </div>
       ) : (
@@ -227,7 +223,6 @@ export default function CosPage() {
                     <CardContent className="pt-6">
                       <div className="flex flex-col md:flex-row gap-8">
 
-                        {/* Detalii Text (Stânga) */}
                         <div className="flex-1 grid grid-cols-2 gap-y-5 gap-x-2 text-sm">
                           <div>
                             <span className="text-slate-400 block text-[10px] font-bold uppercase tracking-wider mb-1">Dimensiuni Gol</span>
@@ -249,7 +244,6 @@ export default function CosPage() {
                           </div>
                         </div>
 
-                        {/* Schiță Vizuală (Dreapta) - Lățită pentru a se vedea clar */}
                         <div className="w-full md:w-[320px] shrink-0 bg-slate-50/70 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-200">
                           <span className="text-[10px] uppercase tracking-wider text-slate-400 mb-2 font-semibold">Vedere Frontală</span>
                           <div className="w-full flex justify-center">
@@ -258,7 +252,6 @@ export default function CosPage() {
                         </div>
                       </div>
 
-                      {/* Mesaj de eroare dacă sticla e prea mare */}
                       {isOversized && (
                         <div className="mt-6 p-3 bg-red-100 text-red-800 text-sm rounded-md flex items-start gap-2 border border-red-200">
                           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
@@ -279,7 +272,6 @@ export default function CosPage() {
               })}
             </div>
 
-            {/* Bara din dreapta */}
             <div className="space-y-6">
               <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
                 <CardHeader><CardTitle>Sumar Comandă</CardTitle></CardHeader>
